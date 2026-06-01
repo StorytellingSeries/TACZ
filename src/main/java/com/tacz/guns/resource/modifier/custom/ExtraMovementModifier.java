@@ -43,8 +43,9 @@ public class ExtraMovementModifier implements IAttachmentModifier<MoveSpeed, Mov
         float aimMultiplier = cache.getAimMultiplier();
         float reloadMultiplier = cache.getReloadMultiplier();
 
-        double minPercent = -200, maxPercent = 200;
-        double defalutPercent = ((0 - minPercent) / (maxPercent - minPercent));
+        double minPercent = -2.0, maxPercent = 2.0;
+
+        double defaultPercent = ((0 - minPercent) / (maxPercent - minPercent));
 
         double baseModifierPercent = ((baseMultiplier - minPercent) / (maxPercent - minPercent));
         double aimModifierPercent = ((aimMultiplier - minPercent) / (maxPercent - minPercent));
@@ -54,20 +55,27 @@ public class ExtraMovementModifier implements IAttachmentModifier<MoveSpeed, Mov
         String aimTitleKey = "gui.tacz.gun_refit.property_diagrams.aim_speed";
         String reloadTitleKey = "gui.tacz.gun_refit.property_diagrams.reload_speed";
 
-        String basePositivelyString = String.format("%.1f%%", baseModifierPercent * 100);
-        String baseNegativelyString = String.format("%.1f%%", baseModifierPercent * 100);
-        String aimPositivelyString = String.format("%.1f%%", aimModifierPercent * 100);
-        String aimNegativelyString = String.format("%.1f%%", aimModifierPercent * 100);
-        String reloadPositivelyString = String.format("%.1f%%", reloadModifierPercent * 100);
-        String reloadNegativelyString = String.format("%.1f%%", reloadModifierPercent * 100);
+        String basePositivelyString = String.format("%+.1f%%", baseMultiplier * 100);
+        String baseNegativelyString = String.format("%+.1f%%", baseMultiplier * 100);
 
-        String defaultString = String.format("%.1fm", 0.0d);
+        String aimPositivelyString = String.format("%+.1f%%", aimMultiplier * 100);
+        String aimNegativelyString = String.format("%+.1f%%", aimMultiplier * 100);
+
+        String reloadPositivelyString = String.format("%+.1f%%", reloadMultiplier * 100);
+        String reloadNegativelyString = String.format("%+.1f%%", reloadMultiplier * 100);
+
+        String defaultString = "0.0%";
 
         return List.of(
-            new DiagramsData(defalutPercent, baseModifierPercent, baseModifierPercent, baseTitleKey, basePositivelyString, baseNegativelyString, defaultString, true),
-            new DiagramsData(defalutPercent, aimModifierPercent, aimModifierPercent, aimTitleKey, aimPositivelyString, aimNegativelyString, defaultString, true),
-            new DiagramsData(defalutPercent, reloadModifierPercent, reloadModifierPercent, reloadTitleKey, reloadPositivelyString, reloadNegativelyString, defaultString, true)
+                new DiagramsData(defaultPercent, baseModifierPercent, baseMultiplier, baseTitleKey, basePositivelyString, baseNegativelyString, defaultString, true),
+                new DiagramsData(defaultPercent, aimModifierPercent, aimMultiplier, aimTitleKey, aimPositivelyString, aimNegativelyString, defaultString, true),
+                new DiagramsData(defaultPercent, reloadModifierPercent, reloadMultiplier, reloadTitleKey, reloadPositivelyString, reloadNegativelyString, defaultString, true)
         );
+    }
+
+    @Override
+    public int getDiagramsDataSize() {
+        return 3;
     }
 
     @Override
