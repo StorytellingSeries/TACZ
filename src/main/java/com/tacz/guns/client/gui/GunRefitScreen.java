@@ -136,7 +136,7 @@ public class GunRefitScreen extends Screen {
                     b -> {
                         for (int i = 0; i < 9; i++) {
                             if (player.getInventory().getItem(i).getItem() instanceof IGun) {
-                                player.getInventory().selected = i;
+               ё                 player.getInventory().selected = i;
                                 break;
                             }
                         }
