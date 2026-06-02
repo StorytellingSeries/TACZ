@@ -116,9 +116,10 @@ public class GunRefitScreen extends Screen {
     public void init() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
+        boolean hasGun = false;
         for (int i = 0; i < 9; i++) {
-            if (player.getInventory().getItem(i).getItem() instanceof IGun && !(player.getInventory().getSelected().getItem() instanceof IGun)) {
-                player.getInventory().selected = i;
+            if (player.getInventory().getItem(i).getItem() instanceof IGun) {
+                hasGun = true;
                 break;
             }
         }
@@ -128,22 +129,48 @@ public class GunRefitScreen extends Screen {
         // 添加可选配件列表
         this.addInventoryAttachmentButtons();
         // 添加属性图隐藏按钮
-        if (HIDE_GUN_PROPERTY_DIAGRAMS) {
-            this.addRenderableWidget(new FlatColorButton(11, 11, 310, 16,
-                    Component.translatable("gui.tacz.gun_refit.property_diagrams.show"), b -> switchHideButton()));
+        if (!hasGun) {
+            this.addRenderableWidget(new FlatColorButton(
+                    11, 11, 310, 16,
+                    Component.literal("Возьмите оружие в руки"),
+                    b -> {
+                        for (int i = 0; i < 9; i++) {
+                            if (player.getInventory().getItem(i).getItem() instanceof IGun) {
+                                player.getInventory().selected = i;
+                                break;
+                            }
+                        }
+                    }
+            ));
         } else {
-            this.addRenderableWidget(new FlatColorButton(14, 14, 12, 12, Component.literal("S"), b -> {
-                if (player.isSpectator()) return;
-                if (IGun.mainHandHoldGun(player)) {
-                    IClientPlayerGunOperator.fromLocalPlayer(player).fireSelect();
-                    int select = player.getInventory().selected;
-                    this.init();
-                    player.getInventory().selected = select;
-                }
-            }).setTooltips(Component.translatable("gui.tacz.gun_refit.property_diagrams.fire_mode.switch")));
-            int buttonYOffset = GunPropertyDiagrams.getHidePropertyButtonYOffset();
-            this.addRenderableWidget(new FlatColorButton(11, buttonYOffset + 5, 330, 12,
-                    Component.translatable("gui.tacz.gun_refit.property_diagrams.hide"), b -> switchHideButton()));
+            if (HIDE_GUN_PROPERTY_DIAGRAMS) {
+                this.addRenderableWidget(new FlatColorButton(
+                        11, 11, 310, 16,
+                        Component.translatable("gui.tacz.gun_refit.property_diagrams.show"),
+                        b -> switchHideButton()
+                ));
+            } else {
+                this.addRenderableWidget(new FlatColorButton(
+                        14, 14, 12, 12,
+                        Component.literal("S"),
+                        b -> {
+                            if (player.isSpectator()) return;
+                            if (IGun.mainHandHoldGun(player)) {
+                                IClientPlayerGunOperator.fromLocalPlayer(player).fireSelect();
+                                int select = player.getInventory().selected;
+                                this.init();
+                                player.getInventory().selected = select;
+                            }
+                        }
+                ).setTooltips(Component.translatable("gui.tacz.gun_refit.property_diagrams.fire_mode.switch")));
+
+                int buttonYOffset = GunPropertyDiagrams.getHidePropertyButtonYOffset();
+                this.addRenderableWidget(new FlatColorButton(
+                        11, buttonYOffset + 5, 330, 12,
+                        Component.translatable("gui.tacz.gun_refit.property_diagrams.hide"),
+                        b -> switchHideButton()
+                ));
+            }
         }
         this.addGunsButtons();
         this.addSwitchButtons();
