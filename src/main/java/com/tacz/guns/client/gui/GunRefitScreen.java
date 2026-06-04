@@ -16,6 +16,7 @@ import com.tacz.guns.api.item.IAttachment;
 import com.tacz.guns.api.item.IGun;
 import com.tacz.guns.api.item.attachment.AttachmentType;
 import com.tacz.guns.api.item.attachment.UniversalAttachmentType;
+import com.tacz.guns.api.item.gun.FireMode;
 import com.tacz.guns.client.animation.screen.RefitTransform;
 import com.tacz.guns.client.event.FirstPersonRenderEvent;
 import com.tacz.guns.client.event.FirstPersonRenderGunEvent;
@@ -30,6 +31,7 @@ import com.tacz.guns.network.NetworkHandler;
 import com.tacz.guns.network.message.ClientMessageLaserColor;
 import com.tacz.guns.network.message.ClientMessageRefitGun;
 import com.tacz.guns.network.message.ClientMessageUnloadAttachment;
+import com.tacz.guns.resource.index.CommonGunIndex;
 import com.tacz.guns.sound.SoundManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -120,6 +122,7 @@ public class GunRefitScreen extends Screen {
         for (int i = 0; i < 9; i++) {
             if (player.getInventory().getItem(i).getItem() instanceof IGun) {
                 hasGun = true;
+                if (!(player.getInventory().getSelected().getItem() instanceof IGun)) player.getInventory().selected = i;
                 break;
             }
         }
@@ -134,12 +137,12 @@ public class GunRefitScreen extends Screen {
                     11, 11, 310, 16,
                     Component.literal("Возьмите оружие в руки"),
                     b -> {
-                        for (int i = 0; i < 9; i++) {
-                            if (player.getInventory().getItem(i).getItem() instanceof IGun) {
-                                player.getInventory().selected = i;
-                                break;
-                            }
-                        }
+//                        for (int i = 0; i < 9; i++) {
+//                            if (player.getInventory().getItem(i).getItem() instanceof IGun) {
+//                                player.getInventory().selected = i;
+//                                break;
+//                            }
+//                        }
                     }
             ));
         } else {
@@ -150,26 +153,32 @@ public class GunRefitScreen extends Screen {
                         b -> switchHideButton()
                 ));
             } else {
-                this.addRenderableWidget(new FlatColorButton(
-                        14, 14, 12, 12,
-                        Component.literal("S"),
-                        b -> {
-                            if (player.isSpectator()) return;
-                            if (IGun.mainHandHoldGun(player)) {
-                                IClientPlayerGunOperator.fromLocalPlayer(player).fireSelect();
-                                int select = player.getInventory().selected;
-                                this.init();
-                                player.getInventory().selected = select;
-                            }
-                        }
-                ).setTooltips(Component.translatable("gui.tacz.gun_refit.property_diagrams.fire_mode.switch")));
-
                 int buttonYOffset = GunPropertyDiagrams.getHidePropertyButtonYOffset();
                 this.addRenderableWidget(new FlatColorButton(
                         11, buttonYOffset + 5, 330, 12,
                         Component.translatable("gui.tacz.gun_refit.property_diagrams.hide"),
                         b -> switchHideButton()
                 ));
+
+                if (player.getMainHandItem().getItem() instanceof IGun gun) {
+                    ResourceLocation gunId = gun.getGunId(player.getMainHandItem());
+                    CommonGunIndex index = TimelessAPI.getCommonGunIndex(gunId).orElse(null);
+                    if (index != null && index.getGunData().getFireModeSet().size() > 1) {
+                        this.addRenderableWidget(new FlatColorButton(
+                                14, 14, 12, 12,
+                                Component.literal("S"),
+                                b -> {
+                                    if (player.isSpectator()) return;
+                                    if (IGun.mainHandHoldGun(player)) {
+                                        IClientPlayerGunOperator.fromLocalPlayer(player).fireSelect();
+                                        int select = player.getInventory().selected;
+                                        this.init();
+                                        player.getInventory().selected = select;
+                                    }
+                                }
+                        ).setTooltips(Component.translatable("gui.tacz.gun_refit.property_diagrams.fire_mode.switch")));
+                    }
+                }
             }
         }
         this.addGunsButtons();

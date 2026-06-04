@@ -43,13 +43,15 @@ public class ExtraMovementModifier implements IAttachmentModifier<MoveSpeed, Mov
         float aimMultiplier = cache.getAimMultiplier();
         float reloadMultiplier = cache.getReloadMultiplier();
 
-        double minPercent = -2.0, maxPercent = 2.0;
+        double minPercent = -1.0, maxPercent = 2.0;
 
-        double defaultPercent = ((0 - minPercent) / (maxPercent - minPercent));
+        double defaultBasePercent = ((gunData.getMoveSpeed().getBaseMultiplier() - minPercent) / (maxPercent - minPercent));
+        double defaultAimPercent = ((gunData.getMoveSpeed().getAimMultiplier() - minPercent) / (maxPercent - minPercent));
+        double defaultReloadPercent = ((gunData.getMoveSpeed().getReloadMultiplier() - minPercent) / (maxPercent - minPercent));
 
-        double baseModifierPercent = ((baseMultiplier - minPercent) / (maxPercent - minPercent));
-        double aimModifierPercent = ((aimMultiplier - minPercent) / (maxPercent - minPercent));
-        double reloadModifierPercent = ((reloadMultiplier - minPercent) / (maxPercent - minPercent));
+        double baseModifierPercent = (baseMultiplier - minPercent) / (maxPercent - minPercent) - defaultBasePercent;
+        double aimModifierPercent = (aimMultiplier - minPercent) / (maxPercent - minPercent) - defaultAimPercent;
+        double reloadModifierPercent = (reloadMultiplier - minPercent) / (maxPercent - minPercent) - defaultReloadPercent;
 
         String baseTitleKey = "gui.tacz.gun_refit.property_diagrams.movement_speed";
         String aimTitleKey = "gui.tacz.gun_refit.property_diagrams.aim_speed";
@@ -67,9 +69,9 @@ public class ExtraMovementModifier implements IAttachmentModifier<MoveSpeed, Mov
         String defaultString = "0.0%";
 
         return List.of(
-                new DiagramsData(defaultPercent, baseModifierPercent, baseMultiplier, baseTitleKey, basePositivelyString, baseNegativelyString, defaultString, true),
-                new DiagramsData(defaultPercent, aimModifierPercent, aimMultiplier, aimTitleKey, aimPositivelyString, aimNegativelyString, defaultString, true),
-                new DiagramsData(defaultPercent, reloadModifierPercent, reloadMultiplier, reloadTitleKey, reloadPositivelyString, reloadNegativelyString, defaultString, true)
+                new DiagramsData(defaultBasePercent, baseModifierPercent, baseMultiplier, baseTitleKey, basePositivelyString, baseNegativelyString, defaultString, true),
+                new DiagramsData(defaultAimPercent, aimModifierPercent, aimMultiplier, aimTitleKey, aimPositivelyString, aimNegativelyString, defaultString, true),
+                new DiagramsData(defaultReloadPercent, reloadModifierPercent, reloadMultiplier, reloadTitleKey, reloadPositivelyString, reloadNegativelyString, defaultString, true)
         );
     }
 
